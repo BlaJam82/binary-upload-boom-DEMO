@@ -47,16 +47,35 @@ module.exports = {
   },
   likePost: async (req, res) => {
     try {
-      await Post.findOneAndUpdate(
-        { _id: req.params.id },
-        {
-          $inc: { likes: 1 },
-        }
-      );
-      console.log("Likes +1");
+      const post = await Post.findById(req.params.id);
+
+      if (!post) {
+        return res.status(404).send("Post not found");
+      }
+
+      const userId = req.user._id;
+
+      const alreadyLiked = post.likedBy.includes(userId);
+
+      if (alreadyLiked) {
+        // UNLIKE
+        post.likes -= 1;
+        post.likedBy = post.likedBy.filter(
+          (id) => id.toString() !== userId.toString()
+        );
+        console.log("Like removed");
+      } else {
+        // LIKE
+        post.likes += 1;
+        post.likedBy.push(userId);
+        console.log("Likes +1");
+      }
+
+      await post.save();
       res.redirect(`/post/${req.params.id}`);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      res.status(500).send("Something went wrong.");
     }
   },
   deletePost: async (req, res) => {
