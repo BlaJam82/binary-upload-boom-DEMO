@@ -1,0 +1,6 @@
+.uniform-img {
+  width: 100%; /* fills the width of its column */
+  height: 350px; /* fixed height */
+  object-fit: cover; /* crop the image to fill the box */
+  border-radius: 8px; /* optional: rounded corners */
+}
